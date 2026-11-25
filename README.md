@@ -44,7 +44,7 @@ carnet « MarkItDown » s'il n'y en a pas, et reçoit le tag **MarkItDown**.
 |---|---|
 | `.docx` | titres, paragraphes, listes, tableaux, liens, images intégrées |
 | `.pptx` | texte de chaque diapositive, dans l'ordre |
-| `.xlsx`, `.xls` | une section par feuille, en tableau Markdown |
+| `.xlsx` | une section par feuille, en tableau Markdown |
 | `.csv` | tableau Markdown |
 | `.pdf` | texte (sans OCR : un PDF scanné donne peu de texte) |
 | `.html`, `.htm` | conversion HTML → Markdown |
@@ -53,7 +53,8 @@ carnet « MarkItDown » s'il n'y en a pas, et reçoit le tag **MarkItDown**.
 | `.ipynb` | cellules markdown et de code |
 | `.txt`, `.md` | repris tels quels |
 
-Non pris en charge : `.doc` et `.rtf` (enregistrez en `.docx`), `.msg`,
+Non pris en charge : `.doc` et `.rtf` (enregistrez en `.docx`), `.xls`
+(enregistrez en `.xlsx`), `.msg`,
 `.zip`, images et audio (OCR, transcription).
 
 ## Limites
@@ -61,7 +62,7 @@ Non pris en charge : `.doc` et `.rtf` (enregistrez en `.docx`), `.msg`,
 - **Réimplémentation, pas le moteur officiel.** MarkItDown officiel est un
   paquet Python. Il ne peut pas tourner dans un plugin Joplin, qui n'exécute
   que du JavaScript. Le plugin s'appuie donc sur des bibliothèques JS
-  (mammoth, unpdf, SheetJS, node-html-markdown, JSZip). Le rendu peut différer
+  (mammoth, unpdf, node-html-markdown, JSZip). Le rendu peut différer
   de MarkItDown, surtout pour les mises en page complexes.
 - **PDF** : extraction de texte uniquement, pas d'OCR, pas de reconnaissance
   de tableaux.

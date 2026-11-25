@@ -9,15 +9,15 @@
     "build": "webpack --mode production",
     "pack": "node scripts/pack.js",
     "dist": "npm run build && npm run pack",
-    "test": "node --test tests/convert.test.js tests/plugin.test.js"
+    "test": "node --test tests/convert.test.js tests/plugin.test.js",
+    "bench": "node scripts/bench-startup.mjs"
   },
   "dependencies": {
     "jszip": "3.10.2",
     "mammoth": "1.13.0",
     "node-html-markdown": "2.0.0",
     "pdfjs-dist": "5.7.284",
-    "unpdf": "1.9.1",
-    "xlsx": "0.18.5"
+    "unpdf": "1.9.1"
   },
   "devDependencies": {
     "tar": "7.5.22",

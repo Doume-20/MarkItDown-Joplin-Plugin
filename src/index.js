@@ -14,7 +14,8 @@
  *
  * Tout tourne localement : aucun serveur, aucun envoi réseau.
  */
-import { convertToMarkdown, SUPPORTED_EXTENSIONS } from './convert.js';
+import { SUPPORTED_EXTENSIONS } from './formats.js';
+import { convertToMarkdown } from './convert.js';
 
 const TAG_TITLE = 'MarkItDown';
 const FALLBACK_NOTEBOOK = 'MarkItDown';

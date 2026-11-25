@@ -1,18 +1,17 @@
-import { convertDocx, convertPptx, convertSpreadsheet } from './converters/office.js';
-import { convertPdf } from './converters/pdf.js';
-import { convertHtml, convertEpub } from './converters/web.js';
-import { convertPlainText, convertCode, convertNotebook } from './converters/text.js';
+import { extensionOf, SUPPORTED_EXTENSIONS } from './formats.js';
 
-/** Extensions prises en charge (mêmes formats que MarkItDown, hors OCR/audio/images). */
-export const SUPPORTED_EXTENSIONS = [
-	'docx', 'pptx', 'xlsx', 'xls', 'csv', 'pdf', 'html', 'htm',
-	'epub', 'json', 'xml', 'ipynb', 'txt', 'md', 'markdown',
-];
+export { SUPPORTED_EXTENSIONS, extensionOf };
 
-export function extensionOf(filename) {
-	const m = /\.([^./\\]+)$/.exec(filename);
-	return m ? m[1].toLowerCase() : '';
-}
+// Chaque convertisseur est chargé à la demande (import dynamique) : les
+// bibliothèques lourdes (pdf.js, xlsx, mammoth…) ne sont évaluées qu'au
+// premier fichier de ce type, pas au démarrage de Joplin.
+const loaders = {
+	office: () => import('./converters/office.js'),
+	sheets: () => import('./converters/sheets.js'),
+	pdf: () => import('./converters/pdf.js'),
+	web: () => import('./converters/web.js'),
+	text: () => import('./converters/text.js'),
+};
 
 /**
  * Convertit le contenu d'un fichier en Markdown.
@@ -23,21 +22,22 @@ export function extensionOf(filename) {
 export async function convertToMarkdown(bytes, filename) {
 	const ext = extensionOf(filename);
 	switch (ext) {
-		case 'docx': return convertDocx(bytes);
-		case 'pptx': return convertPptx(bytes);
-		case 'xlsx':
-		case 'xls': return convertSpreadsheet(bytes, false);
-		case 'csv': return convertSpreadsheet(bytes, true);
-		case 'pdf': return convertPdf(bytes);
+		case 'docx': return (await loaders.office()).convertDocx(bytes);
+		case 'pptx': return (await loaders.office()).convertPptx(bytes);
+		case 'xlsx': return (await loaders.sheets()).convertSpreadsheet(bytes, false);
+		case 'csv': return (await loaders.sheets()).convertSpreadsheet(bytes, true);
+		case 'xls':
+			throw new Error('format .xls (ancien Excel) non pris en charge : enregistrez le fichier en .xlsx');
+		case 'pdf': return (await loaders.pdf()).convertPdf(bytes);
 		case 'html':
-		case 'htm': return convertHtml(bytes);
-		case 'epub': return convertEpub(bytes);
-		case 'json': return convertCode(bytes, 'json');
-		case 'xml': return convertCode(bytes, 'xml');
-		case 'ipynb': return convertNotebook(bytes);
+		case 'htm': return (await loaders.web()).convertHtml(bytes);
+		case 'epub': return (await loaders.web()).convertEpub(bytes);
+		case 'json': return (await loaders.text()).convertCode(bytes, 'json');
+		case 'xml': return (await loaders.text()).convertCode(bytes, 'xml');
+		case 'ipynb': return (await loaders.text()).convertNotebook(bytes);
 		case 'txt':
 		case 'md':
-		case 'markdown': return convertPlainText(bytes);
+		case 'markdown': return (await loaders.text()).convertPlainText(bytes);
 		case 'doc':
 			throw new Error('format .doc (ancien Word) non pris en charge : enregistrez le fichier en .docx');
 		case 'rtf':

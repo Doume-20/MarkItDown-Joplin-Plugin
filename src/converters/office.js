@@ -1,6 +1,5 @@
 import mammoth from 'mammoth';
 import JSZip from 'jszip';
-import * as XLSX from 'xlsx';
 import { toArrayBuffer, utf8, decodeXml, markdownTable } from './common.js';
 
 /** Word (.docx) — via mammoth. */
@@ -32,19 +31,4 @@ export async function convertPptx(bytes) {
 		sections.push(`## Diapositive ${slide.match[1]}\n\n${paragraphs.join('\n\n')}`.trimEnd());
 	}
 	return sections.join('\n\n');
-}
-
-/** Excel (.xlsx, .xls) et CSV — une section par feuille, en tableaux Markdown. */
-export function convertSpreadsheet(bytes, isText = false) {
-	const workbook = isText
-		? XLSX.read(utf8(bytes), { type: 'string', raw: true })
-		: XLSX.read(bytes, { type: 'array', cellDates: true });
-
-	const sections = workbook.SheetNames.map(name => {
-		const rows = XLSX.utils.sheet_to_json(workbook.Sheets[name], { header: 1, defval: '', blankrows: false, raw: false });
-		const table = markdownTable(rows);
-		if (!table) return null;
-		return workbook.SheetNames.length > 1 ? `## ${name}\n\n${table}` : table;
-	});
-	return sections.filter(Boolean).join('\n\n');
 }

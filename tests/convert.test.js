@@ -37,15 +37,27 @@ test('csv -> markdown table', async () => {
 	assert.equal(md, '| nom | valeur |\n| --- | --- |\n| a | 1 |\n| b | 2 |');
 });
 
-test('xlsx -> one section per sheet', async () => {
-	const XLSX = await import('xlsx');
-	const wb = XLSX.utils.book_new();
-	XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['x', 'y'], [1, 'a|b']]), 'Feuille1');
-	XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['z'], [42]]), 'Feuille2');
-	const bytes = new Uint8Array(XLSX.write(wb, { type: 'array', bookType: 'xlsx' }));
+test('xlsx -> one section per sheet (shared strings, inline strings, numbers)', async () => {
+	const zip = new JSZip();
+	zip.file('xl/workbook.xml', '<workbook><sheets><sheet name="Feuille1" sheetId="1" r:id="rId1"/><sheet name="Feuille2" sheetId="2" r:id="rId2"/></sheets></workbook>');
+	zip.file('xl/_rels/workbook.xml.rels', '<Relationships><Relationship Id="rId1" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Target="worksheets/sheet2.xml"/></Relationships>');
+	zip.file('xl/sharedStrings.xml', '<sst><si><t>x</t></si><si><t>y</t></si><si><t>a|b</t></si></sst>');
+	zip.file('xl/worksheets/sheet1.xml', '<worksheet><sheetData><row r="1"><c r="A1" t="s"><v>0</v></c><c r="B1" t="s"><v>1</v></c></row><row r="2"><c r="A2"><v>1</v></c><c r="B2" t="s"><v>2</v></c></row></sheetData></worksheet>');
+	zip.file('xl/worksheets/sheet2.xml', '<worksheet><sheetData><row r="1"><c r="A1" t="inlineStr"><is><t>z</t></is></c></row><row r="2"><c r="A2"><v>42</v></c></row></sheetData></worksheet>');
+	const bytes = await zip.generateAsync({ type: 'uint8array' });
 	const md = await convertToMarkdown(bytes, 'book.xlsx');
 	assert.match(md, /## Feuille1\n\n\| x \| y \|\n\| --- \| --- \|\n\| 1 \| a\\\|b \|/);
 	assert.match(md, /## Feuille2\n\n\| z \|\n\| --- \|\n\| 42 \|/);
+});
+
+test('csv: quoted fields, embedded newlines, ; separator', async () => {
+	const { parseCsv } = await import('../src/converters/sheets.js');
+	assert.deepEqual(parseCsv('a,"b, c"\n1,"multi\nline ""q"""'), [['a', 'b, c'], ['1', 'multi\nline "q"']]);
+	assert.deepEqual(parseCsv('x;y\n1;2'), [['x', 'y'], ['1', '2']]);
+});
+
+test('xls (binary Excel) gives a clear error', async () => {
+	await assert.rejects(convertToMarkdown(new Uint8Array(), 'old.xls'), /enregistrez le fichier en .xlsx/);
 });
 
 test('pptx -> slides in numeric order', async () => {
