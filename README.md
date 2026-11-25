@@ -82,7 +82,7 @@ Prérequis : Node.js 22+.
 ```bash
 npm install
 npm test          # tests des convertisseurs et du plugin (sur le bundle)
-npm run dist      # build dist/index.js puis dist/markitdown-import.jpl
+npm run dist      # build dist/index.js puis publish/markitdown-import.jpl
 ```
 
 Structure :

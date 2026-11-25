@@ -1,26 +1,53 @@
 {
   "name": "joplin-plugin-markitdown-import",
-  "version": "0.2.3",
-  "description": "Joplin plugin: import Word, PDF, PowerPoint, Excel, HTML… files as Markdown notes tagged MarkItDown (pure JavaScript, no server).",
+  "version": "0.3.0",
+  "description": "Joplin plugin: import Word, PDF, PowerPoint, Excel, HTML, EPUB… files as Markdown notes tagged MarkItDown. Conversion runs locally, in pure JavaScript.",
   "type": "module",
   "license": "MIT",
-  "private": true,
+  "author": "Doume20",
+  "keywords": [
+    "joplin-plugin",
+    "joplin",
+    "markitdown",
+    "import",
+    "word",
+    "docx",
+    "pdf",
+    "pptx",
+    "excel",
+    "markdown"
+  ],
+  "homepage": "https://github.com/Doume-20/MarkItDown-Joplin-Plugin#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Doume-20/MarkItDown-Joplin-Plugin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Doume-20/MarkItDown-Joplin-Plugin/issues"
+  },
+  "files": [
+    "publish/",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
+    "prepublishOnly": "npm run dist && npm test",
     "build": "webpack --mode production",
     "pack": "node scripts/pack.js",
     "dist": "npm run build && npm run pack",
     "test": "node --test tests/convert.test.js tests/plugin.test.js",
     "bench": "node scripts/bench-startup.mjs"
   },
-  "dependencies": {
+  "devDependencies": {
     "jszip": "3.10.2",
     "mammoth": "1.13.0",
     "node-html-markdown": "2.0.0",
     "pdfjs-dist": "5.7.284",
-    "unpdf": "1.9.1"
-  },
-  "devDependencies": {
     "tar": "7.5.22",
+    "unpdf": "1.9.1",
     "webpack": "5.112.2",
     "webpack-cli": "7.3.1"
   }

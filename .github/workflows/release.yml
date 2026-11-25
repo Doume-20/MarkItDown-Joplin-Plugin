@@ -23,5 +23,5 @@ jobs:
       - run: npm run dist
       - uses: softprops/action-gh-release@v2
         with:
-          files: dist/markitdown-import.jpl
+          files: publish/markitdown-import.jpl
           generate_release_notes: true

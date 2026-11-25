@@ -184,7 +184,7 @@ test('manifest has every field Joplin requires (missing "name" silently prevents
 test('.jpl is a gzipped tar with manifest.json and index.js at its root (what Joplin extracts)', async () => {
 	const tar = await import('tar');
 	const os = await import('node:os');
-	const jpl = path.join(root, 'dist', 'markitdown-import.jpl');
+	const jpl = path.join(root, 'publish', 'markitdown-import.jpl');
 	const entries = [];
 	await tar.t({ file: jpl, gzip: true, onReadEntry: e => entries.push(e.path) });
 	assert.deepEqual(entries.sort(), ['index.js', 'manifest.json']);
