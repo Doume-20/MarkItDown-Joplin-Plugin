@@ -1,0 +1,148 @@
+// Traductions du plugin. La langue est lue dans les réglages de Joplin (locale).
+// Langue inconnue ou absente : anglais.
+
+const messages = {
+	en: {
+		command: 'Import with MarkItDown…',
+		importModule: 'Import (other)',
+		sectionLabel: 'MarkItDown Import',
+		settingAttach: 'Attach the original file to the note',
+		selectFolder: 'Select a notebook in the sidebar first.',
+		imported: 'Imported with the tag « {tag} »:',
+		failed: 'Failed:',
+		nothing: 'Nothing to import.',
+		noContent: '_(no content extracted)_',
+		originalFile: 'Original file: {name}',
+		slide: 'Slide {n}',
+		sheetDefault: 'Sheet',
+		unsupported: 'Unsupported format: .{ext}',
+		unsupportedNoExt: 'Unsupported format',
+		doc: 'Old Word format (.doc) is not supported: save the file as .docx',
+		rtf: 'RTF format is not supported: save the file as .docx',
+		xls: 'Old Excel format (.xls) is not supported: save the file as .xlsx',
+		invalidXlsx: 'Invalid .xlsx file',
+		invalidEpub: 'Invalid EPUB: OPF file not found',
+	},
+	fr: {
+		command: 'Importer avec MarkItDown…',
+		importModule: 'Importer (autre)',
+		sectionLabel: 'MarkItDown Import',
+		settingAttach: 'Joindre le fichier original à la note',
+		selectFolder: 'Sélectionnez d\'abord un carnet dans la liste de gauche.',
+		imported: 'Importé(s) avec le tag « {tag} » :',
+		failed: 'Échec(s) :',
+		nothing: 'Rien à importer.',
+		noContent: '_(aucun contenu extrait)_',
+		originalFile: 'Fichier original : {name}',
+		slide: 'Diapositive {n}',
+		sheetDefault: 'Feuille',
+		unsupported: 'format non pris en charge : .{ext}',
+		unsupportedNoExt: 'format non pris en charge',
+		doc: 'format .doc (ancien Word) non pris en charge : enregistrez le fichier en .docx',
+		rtf: 'format .rtf non pris en charge : enregistrez le fichier en .docx',
+		xls: 'format .xls (ancien Excel) non pris en charge : enregistrez le fichier en .xlsx',
+		invalidXlsx: 'fichier .xlsx invalide',
+		invalidEpub: 'EPUB invalide : fichier OPF introuvable',
+	},
+	de: {
+		command: 'Mit MarkItDown importieren…',
+		importModule: 'Andere importieren',
+		sectionLabel: 'MarkItDown-Import',
+		settingAttach: 'Originaldatei an die Notiz anhängen',
+		selectFolder: 'Wählen Sie zuerst ein Notizbuch in der Seitenleiste aus.',
+		imported: 'Mit dem Tag « {tag} » importiert:',
+		failed: 'Fehlgeschlagen:',
+		nothing: 'Nichts zu importieren.',
+		noContent: '_(kein Inhalt extrahiert)_',
+		originalFile: 'Originaldatei: {name}',
+		slide: 'Folie {n}',
+		sheetDefault: 'Tabelle',
+		unsupported: 'Nicht unterstütztes Format: .{ext}',
+		unsupportedNoExt: 'Nicht unterstütztes Format',
+		doc: 'Altes Word-Format (.doc) wird nicht unterstützt: Speichern Sie die Datei als .docx',
+		rtf: 'RTF-Format wird nicht unterstützt: Speichern Sie die Datei als .docx',
+		xls: 'Altes Excel-Format (.xls) wird nicht unterstützt: Speichern Sie die Datei als .xlsx',
+		invalidXlsx: 'Ungültige .xlsx-Datei',
+		invalidEpub: 'Ungültiges EPUB: OPF-Datei nicht gefunden',
+	},
+	es: {
+		command: 'Importar con MarkItDown…',
+		importModule: 'Importar (otros)',
+		sectionLabel: 'Importación de MarkItDown',
+		settingAttach: 'Adjuntar el archivo original a la nota',
+		selectFolder: 'Primero seleccione un cuaderno en la barra lateral.',
+		imported: 'Importado(s) con la etiqueta « {tag} »:',
+		failed: 'Error(es):',
+		nothing: 'Nada que importar.',
+		noContent: '_(no se extrajo contenido)_',
+		originalFile: 'Archivo original: {name}',
+		slide: 'Diapositiva {n}',
+		sheetDefault: 'Hoja',
+		unsupported: 'Formato no compatible: .{ext}',
+		unsupportedNoExt: 'Formato no compatible',
+		doc: 'El formato Word antiguo (.doc) no es compatible: guarde el archivo como .docx',
+		rtf: 'El formato RTF no es compatible: guarde el archivo como .docx',
+		xls: 'El formato Excel antiguo (.xls) no es compatible: guarde el archivo como .xlsx',
+		invalidXlsx: 'Archivo .xlsx no válido',
+		invalidEpub: 'EPUB no válido: no se encontró el archivo OPF',
+	},
+	it: {
+		command: 'Importa con MarkItDown…',
+		importModule: 'Importa (altro)',
+		sectionLabel: 'Importazione MarkItDown',
+		settingAttach: 'Allega il file originale alla nota',
+		selectFolder: 'Seleziona prima un taccuino nella barra laterale.',
+		imported: 'Importato/i con il tag « {tag} »:',
+		failed: 'Non riuscito/i:',
+		nothing: 'Niente da importare.',
+		noContent: '_(nessun contenuto estratto)_',
+		originalFile: 'File originale: {name}',
+		slide: 'Diapositiva {n}',
+		sheetDefault: 'Foglio',
+		unsupported: 'Formato non supportato: .{ext}',
+		unsupportedNoExt: 'Formato non supportato',
+		doc: 'Il formato Word vecchio (.doc) non è supportato: salva il file come .docx',
+		rtf: 'Il formato RTF non è supportato: salva il file come .docx',
+		xls: 'Il formato Excel vecchio (.xls) non è supportato: salva il file come .xlsx',
+		invalidXlsx: 'File .xlsx non valido',
+		invalidEpub: 'EPUB non valido: file OPF non trovato',
+	},
+	pt: {
+		command: 'Importar com MarkItDown…',
+		importModule: 'Importar (outros)',
+		sectionLabel: 'Importação MarkItDown',
+		settingAttach: 'Anexar o arquivo original à nota',
+		selectFolder: 'Selecione primeiro um caderno na barra lateral.',
+		imported: 'Importado(s) com a tag « {tag} »:',
+		failed: 'Falha(s):',
+		nothing: 'Nada para importar.',
+		noContent: '_(nenhum conteúdo extraído)_',
+		originalFile: 'Arquivo original: {name}',
+		slide: 'Slide {n}',
+		sheetDefault: 'Planilha',
+		unsupported: 'Formato não suportado: .{ext}',
+		unsupportedNoExt: 'Formato não suportado',
+		doc: 'O formato Word antigo (.doc) não é suportado: salve o arquivo como .docx',
+		rtf: 'O formato RTF não é suportado: salve o arquivo como .docx',
+		xls: 'O formato Excel antigo (.xls) não é suportado: salve o arquivo como .xlsx',
+		invalidXlsx: 'Arquivo .xlsx inválido',
+		invalidEpub: 'EPUB inválido: arquivo OPF não encontrado',
+	},
+};
+
+export const LANGUAGES = Object.keys(messages);
+
+let current = 'en';
+
+/** Choisit la langue d'après une locale Joplin (ex. « fr_FR », « pt-BR »). */
+export function setLocale(locale) {
+	const lang = String(locale || '').split(/[_-]/)[0].toLowerCase();
+	current = messages[lang] ? lang : 'en';
+	return current;
+}
+
+/** Traduit une clé ; {nom} est remplacé par params.nom. */
+export function t(key, params = {}) {
+	const text = messages[current][key] ?? messages.en[key] ?? key;
+	return text.replace(/\{(\w+)\}/g, (_, name) => (params[name] ?? ''));
+}

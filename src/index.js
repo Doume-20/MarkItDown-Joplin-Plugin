@@ -16,10 +16,13 @@
  */
 import { SUPPORTED_EXTENSIONS } from './formats.js';
 import { convertToMarkdown } from './convert.js';
+import { setLocale, t } from './i18n.js';
+import { describeError } from './errors.js';
 
 const TAG_TITLE = 'MarkItDown';
 const FALLBACK_NOTEBOOK = 'MarkItDown';
 const SECTION = 'markitdownImport';
+const COMMAND = 'markitdownImport';
 
 // Valeurs numériques de l'API Joplin (SettingItemType).
 const SETTING_BOOL = 3;
@@ -41,7 +44,7 @@ async function showMessage(message) {
 /** Retrouve le tag « MarkItDown » (insensible à la casse) ou le crée. */
 async function getOrCreateTag(title) {
 	const search = await joplin.data.get(['search'], { query: title, type: 'tag', fields: ['id', 'title'] });
-	const existing = (search.items || []).find(t => t.title.toLowerCase() === title.toLowerCase());
+	const existing = (search.items || []).find(item => item.title.toLowerCase() === title.toLowerCase());
 	if (existing) return existing.id;
 	const created = await joplin.data.post(['tags'], null, { title });
 	return created.id;
@@ -62,11 +65,11 @@ async function destinationFolderId() {
 /** Crée la note (et la pièce jointe originale si demandée). */
 async function createNote(filePath, markdown, folderId, attachOriginal) {
 	const name = basename(filePath);
-	let body = markdown.trim() || '_(aucun contenu extrait)_';
+	let body = markdown.trim() || t('noContent');
 
 	if (attachOriginal) {
 		const resource = await joplin.data.post(['resources'], null, { title: name }, [{ path: filePath }]);
-		body += `\n\n---\n\n[Fichier original : ${name}](:/${resource.id})`;
+		body += `\n\n---\n\n[${t('originalFile', { name })}](:/${resource.id})`;
 	}
 
 	return joplin.data.post(['notes'], null, {
@@ -109,33 +112,31 @@ async function importWithMarkItDown() {
 			await importOneFile(filePath, folderId, tagId, attachOriginal);
 			imported.push(name);
 		} catch (err) {
-			failed.push(`${name} : ${err.message}`);
+			failed.push(`${name} : ${describeError(err)}`);
 		}
 	}
 
 	const lines = [];
-	if (imported.length) lines.push(`Importé(s) avec le tag « ${TAG_TITLE} » :\n- ${imported.join('\n- ')}`);
-	if (failed.length) lines.push(`Échec(s) :\n- ${failed.join('\n- ')}`);
-	await showMessage(lines.join('\n\n') || 'Rien à importer.');
-}
-
-/** Libellé du module d'import selon la langue de Joplin (Fichier → Import). */
-async function importModuleDescription() {
-	try {
-		const [locale] = await joplin.settings.globalValues(['locale']);
-		if (String(locale || '').toLowerCase().startsWith('fr')) return 'Importer (autre)';
-	} catch (_) {
-		// valeur indisponible : libellé anglais
-	}
-	return 'Import (other)';
+	if (imported.length) lines.push(`${t('imported', { tag: TAG_TITLE })}\n- ${imported.join('\n- ')}`);
+	if (failed.length) lines.push(`${t('failed')}\n- ${failed.join('\n- ')}`);
+	await showMessage(lines.join('\n\n') || t('nothing'));
 }
 
 joplin.plugins.register({
 	onStart: async function () {
 		fs = await joplin.require('fs-extra');
 
+			// Langue de l'interface Joplin (ex. « fr_FR ») ; anglais par défaut.
+			let locale = null;
+			try {
+				[locale] = await joplin.settings.globalValues(['locale']);
+			} catch (_) {
+				// locale indisponible : anglais
+			}
+			setLocale(locale);
+
 		await joplin.settings.registerSection(SECTION, {
-			label: 'MarkItDown Import',
+			label: t('sectionLabel'),
 			iconName: 'fas fa-file-import',
 		});
 
@@ -145,14 +146,14 @@ joplin.plugins.register({
 				type: SETTING_BOOL,
 				section: SECTION,
 				public: true,
-				label: 'Joindre le fichier original à la note',
+				label: t('settingAttach'),
 			},
 		});
 
 		// Fichier → Import → « Importer (autre) » : ouvre directement le choix de fichier.
 		await joplin.interop.registerImportModule({
 			format: 'markitdown',
-			description: await importModuleDescription(),
+			description: t('importModule'),
 			isNoteArchive: false,
 			sources: ['file'],
 			fileExtensions: SUPPORTED_EXTENSIONS,
@@ -164,7 +165,7 @@ joplin.plugins.register({
 				try {
 					await importOneFile(context.sourcePath, folderId, tagId, attachOriginal);
 				} catch (err) {
-					context.warnings.push(`${basename(context.sourcePath)} : ${err.message}`);
+					context.warnings.push(`${basename(context.sourcePath)} : ${describeError(err)}`);
 					throw err;
 				}
 			},
@@ -172,12 +173,12 @@ joplin.plugins.register({
 
 		// Outils → Importer avec MarkItDown… : plusieurs fichiers à la fois.
 		await joplin.commands.register({
-			name: 'markitdownImport',
-			label: 'Importer avec MarkItDown…',
+			name: COMMAND,
+			label: t('command'),
 			iconName: 'fas fa-file-import',
 			execute: importWithMarkItDown,
 		});
 
-		await joplin.views.menuItems.create('markitdownImportMenu', 'markitdownImport', 'tools');
+		await joplin.views.menuItems.create('markitdownImportMenu', COMMAND, 'tools');
 	},
 });

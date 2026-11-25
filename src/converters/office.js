@@ -1,6 +1,7 @@
 import mammoth from 'mammoth';
 import JSZip from 'jszip';
-import { toArrayBuffer, utf8, decodeXml, markdownTable } from './common.js';
+import { toArrayBuffer, decodeXml } from './common.js';
+import { t } from '../i18n.js';
 
 /** Word (.docx) — via mammoth. */
 export async function convertDocx(bytes) {
@@ -28,7 +29,7 @@ export async function convertPptx(bytes) {
 			const text = [...para.matchAll(/<a:t>([\s\S]*?)<\/a:t>/g)].map(m => decodeXml(m[1])).join('');
 			if (text.trim()) paragraphs.push(text.trim());
 		}
-		sections.push(`## Diapositive ${slide.match[1]}\n\n${paragraphs.join('\n\n')}`.trimEnd());
+		sections.push(`## ${t('slide', { n: slide.match[1] })}\n\n${paragraphs.join('\n\n')}`.trimEnd());
 	}
 	return sections.join('\n\n');
 }

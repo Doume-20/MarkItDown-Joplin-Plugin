@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import JSZip from 'jszip';
 import { convertToMarkdown, extensionOf } from '../src/convert.js';
 import { markdownTable, decodeXml, codeBlock } from '../src/converters/common.js';
+import { setLocale } from '../src/i18n.js';
 
 const fixtures = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures');
 const load = name => fs.readFile(path.join(fixtures, name)).then(b => new Uint8Array(b));
@@ -56,11 +57,16 @@ test('csv: quoted fields, embedded newlines, ; separator', async () => {
 	assert.deepEqual(parseCsv('x;y\n1;2'), [['x', 'y'], ['1', '2']]);
 });
 
-test('xls (binary Excel) gives a clear error', async () => {
+test('xls (binary Excel) gives a clear error, in the UI language', async () => {
+	setLocale('en');
+	await assert.rejects(convertToMarkdown(new Uint8Array(), 'old.xls'), /save the file as .xlsx/);
+	setLocale('fr');
 	await assert.rejects(convertToMarkdown(new Uint8Array(), 'old.xls'), /enregistrez le fichier en .xlsx/);
+	setLocale('en');
 });
 
-test('pptx -> slides in numeric order', async () => {
+test('pptx -> slides in numeric order (French headings)', async () => {
+	setLocale('fr');
 	const zip = new JSZip();
 	const slide = (texts) => `<?xml version="1.0"?><p:sld xmlns:a="x"><a:p><a:r><a:t>${texts[0]}</a:t></a:r></a:p><a:p><a:r><a:t>${texts[1]}</a:t></a:r></a:p></p:sld>`;
 	zip.file('ppt/slides/slide2.xml', slide(['Deux &amp; co', 'second']));
@@ -69,6 +75,7 @@ test('pptx -> slides in numeric order', async () => {
 	const bytes = await zip.generateAsync({ type: 'uint8array' });
 	const md = await convertToMarkdown(bytes, 'deck.pptx');
 	assert.equal(md, '## Diapositive 1\n\nUn\n\npremier\n\n## Diapositive 2\n\nDeux & co\n\nsecond\n\n## Diapositive 10\n\nDix\n\ndixième');
+	setLocale('en');
 });
 
 test('epub -> chapters in spine order', async () => {
@@ -94,7 +101,7 @@ test('txt, md, json, ipynb', async () => {
 
 test('unsupported formats give a clear error', async () => {
 	await assert.rejects(convertToMarkdown(new Uint8Array(), 'old.doc'), /\.doc.*docx/);
-	await assert.rejects(convertToMarkdown(new Uint8Array(), 'x.mp3'), /non pris en charge : \.mp3/);
+	await assert.rejects(convertToMarkdown(new Uint8Array(), 'x.mp3'), /Unsupported format: \.mp3/);
 });
 
 test('corrupt pdf raises an error instead of returning empty text', async () => {
@@ -105,4 +112,12 @@ test('helpers', () => {
 	assert.equal(decodeXml('a &amp;lt; &#233; &#x41;'), 'a &lt; é A');
 	assert.equal(markdownTable([]), '');
 	assert.equal(codeBlock('txt', 'a ``` b'), '~~~~txt\na ``` b\n~~~~');
+});
+
+test('pptx headings follow the UI language (English by default)', async () => {
+	setLocale('en');
+	const zip = new JSZip();
+	zip.file('ppt/slides/slide1.xml', '<p:sld><a:p><a:r><a:t>Hi</a:t></a:r></a:p></p:sld>');
+	const md = await convertToMarkdown(await zip.generateAsync({ type: 'uint8array' }), 'deck.pptx');
+	assert.equal(md, '## Slide 1\n\nHi');
 });

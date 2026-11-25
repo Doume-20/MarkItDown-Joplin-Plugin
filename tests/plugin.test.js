@@ -75,14 +75,14 @@ test('plugin registers command + File menu item, and imports files with tag', as
 	const notes = state.posts.filter(p => p.path[0] === 'notes');
 	assert.equal(notes.length, 2);
 	assert.equal(notes[0].body.body.split('\n')[0], '# Rapport test');
-	assert.match(notes[0].body.body, /\[Fichier original : sample\.docx\]\(:\/res\d+\)/);
+	assert.match(notes[0].body.body, /\[Original file: sample\.docx\]\(:\/res\d+\)/);
 	assert.equal(notes[0].body.title, 'sample');
 	assert.equal(notes[0].body.parent_id, 'folder1');
 
 	const tagLinks = state.posts.filter(p => p.path[0] === 'tags' && p.path[2] === 'notes');
 	assert.equal(tagLinks.length, 2);
 	assert.ok(tagLinks.every(t => t.path[1] === 'tagNew'));
-	assert.match(state.messages.at(-1), /Importé\(s\) avec le tag « MarkItDown »/);
+	assert.match(state.messages.at(-1), /Imported with the tag « MarkItDown »/);
 });
 
 test('existing MarkItDown tag is reused (case-insensitive) instead of recreated', async () => {
@@ -104,7 +104,7 @@ test('attachOriginal=false creates no resource and no link', async () => {
 
 	assert.ok(!state.posts.some(p => p.path[0] === 'resources'));
 	const note = state.posts.find(p => p.path[0] === 'notes');
-	assert.doesNotMatch(note.body.body, /Fichier original/);
+	assert.doesNotMatch(note.body.body, /Original file/);
 });
 
 test('one failing file does not stop the others and is reported', async () => {
@@ -116,8 +116,8 @@ test('one failing file does not stop the others and is reported', async () => {
 		await plugin.onStart();
 		await state.command.execute();
 		const msg = state.messages.at(-1);
-		assert.match(msg, /Échec\(s\)[\s\S]*bad\.pdf/);
-		assert.match(msg, /Importé\(s\)[\s\S]*sample\.csv/);
+		assert.match(msg, /Failed:[\s\S]*bad\.pdf/);
+		assert.match(msg, /Imported with[\s\S]*sample\.csv/);
 		assert.equal(state.posts.filter(p => p.path[0] === 'notes').length, 1);
 	} finally {
 		await fs.rm(bad, { force: true });
@@ -135,8 +135,8 @@ test('import module appears under File > Import, with localized label and file p
 	assert.ok(state.importModule.fileExtensions.includes('docx'));
 });
 
-test('import module label falls back to English', async () => {
-	const state = makeJoplin({ locale: 'de_DE' });
+test('import module label falls back to English for unsupported languages', async () => {
+	const state = makeJoplin({ locale: 'ja_JP' });
 	const plugin = await loadPlugin(state);
 	await plugin.onStart();
 	assert.equal(state.importModule.description, 'Import (other)');
@@ -198,4 +198,20 @@ test('.jpl is a gzipped tar with manifest.json and index.js at its root (what Jo
 	} finally {
 		await fs.rm(dir, { recursive: true, force: true });
 	}
+});
+
+test('German locale translates the import module and command labels', async () => {
+	const state = makeJoplin({ locale: 'de_DE' });
+	const plugin = await loadPlugin(state);
+	await plugin.onStart();
+	assert.equal(state.importModule.description, 'Andere importieren');
+	assert.equal(state.command.label, 'Mit MarkItDown importieren…');
+});
+
+test('settings and labels are localized from the Joplin locale (pt_BR)', async () => {
+	const state = makeJoplin({ locale: 'pt_BR' });
+	const plugin = await loadPlugin(state);
+	await plugin.onStart();
+	assert.equal(state.importModule.description, 'Importar (outros)');
+	assert.equal(state.command.label, 'Importar com MarkItDown…');
 });

@@ -1,6 +1,7 @@
 import { NodeHtmlMarkdown } from 'node-html-markdown';
 import JSZip from 'jszip';
 import { utf8 } from './common.js';
+import { ConversionError } from '../errors.js';
 
 const nhm = new NodeHtmlMarkdown({ useInlineLinks: true, bulletMarker: '-' });
 
@@ -14,7 +15,7 @@ export async function convertEpub(bytes) {
 	const zip = await JSZip.loadAsync(bytes);
 	const container = await zip.file('META-INF/container.xml')?.async('string');
 	const opfPath = container?.match(/full-path="([^"]+)"/)?.[1];
-	if (!opfPath || !zip.file(opfPath)) throw new Error('EPUB invalide : fichier OPF introuvable');
+	if (!opfPath || !zip.file(opfPath)) throw new ConversionError('invalidEpub');
 
 	const opf = await zip.file(opfPath).async('string');
 	const dir = opfPath.includes('/') ? opfPath.slice(0, opfPath.lastIndexOf('/') + 1) : '';

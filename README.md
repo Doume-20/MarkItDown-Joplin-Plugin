@@ -57,6 +57,13 @@ Non pris en charge : `.doc` et `.rtf` (enregistrez en `.docx`), `.xls`
 (enregistrez en `.xlsx`), `.msg`,
 `.zip`, images et audio (OCR, transcription).
 
+## Langues
+
+L'interface suit la langue de Joplin : anglais, français, allemand, espagnol,
+italien et portugais. Une langue non prise en charge affiche l'anglais.
+Les textes sont dans `src/i18n.js`. Pour ajouter une langue, copiez le bloc
+`en` et traduisez les valeurs, puis ajoutez le code dans le fichier.
+
 ## Limites
 
 - **Réimplémentation, pas le moteur officiel.** MarkItDown officiel est un
@@ -85,6 +92,7 @@ manifest.json            manifeste Joplin (id, version, titre)
 src/index.js             plugin : commande, menu, tag, création de la note
 src/convert.js           aiguillage selon l'extension
 src/converters/          un module par famille de format
+src/i18n.js              traductions (en, fr, de, es, it, pt)
 tests/                   tests des convertisseurs et du bundle
 scripts/pack.js          crée le .jpl (tar gzip : manifest.json + index.js)
 webpack.config.js        bundle unique (pas de chunks séparés)

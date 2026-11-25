@@ -1,6 +1,8 @@
 // Tableurs : lecture minimale du .xlsx (zip + XML) et du .csv, sans bibliothèque lourde.
 import JSZip from 'jszip';
 import { utf8, decodeXml, markdownTable } from './common.js';
+import { ConversionError } from '../errors.js';
+import { t } from '../i18n.js';
 
 const colIndex = letters => {
 	let n = 0;
@@ -43,7 +45,7 @@ export async function readXlsx(bytes) {
 	const readText = name => (zip.file(name) ? zip.file(name).async('string') : null);
 
 	const workbook = await readText('xl/workbook.xml');
-	if (!workbook) throw new Error('fichier .xlsx invalide');
+	if (!workbook) throw new ConversionError('invalidXlsx');
 	const rels = (await readText('xl/_rels/workbook.xml.rels')) || '';
 	const relTargets = new Map();
 	for (const m of rels.matchAll(/<Relationship\s[^>]*\/?>/g)) {
@@ -61,7 +63,7 @@ export async function readXlsx(bytes) {
 	const sheets = [];
 	for (const m of workbook.matchAll(/<sheet\s[^>]*\/?>/g)) {
 		const tag = m[0];
-		const name = decodeXml(tag.match(/\sname="([^"]*)"/)?.[1] || 'Feuille');
+		const name = decodeXml(tag.match(/\sname="([^"]*)"/)?.[1] || t('sheetDefault'));
 		const rid = tag.match(/r:id="([^"]+)"/)?.[1];
 		const target = relTargets.get(rid);
 		const xml = target && (await readText(target));

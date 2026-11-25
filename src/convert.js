@@ -1,4 +1,5 @@
 import { extensionOf, SUPPORTED_EXTENSIONS } from './formats.js';
+import { ConversionError } from './errors.js';
 
 export { SUPPORTED_EXTENSIONS, extensionOf };
 
@@ -27,7 +28,7 @@ export async function convertToMarkdown(bytes, filename) {
 		case 'xlsx': return (await loaders.sheets()).convertSpreadsheet(bytes, false);
 		case 'csv': return (await loaders.sheets()).convertSpreadsheet(bytes, true);
 		case 'xls':
-			throw new Error('format .xls (ancien Excel) non pris en charge : enregistrez le fichier en .xlsx');
+			throw new ConversionError('xls');
 		case 'pdf': return (await loaders.pdf()).convertPdf(bytes);
 		case 'html':
 		case 'htm': return (await loaders.web()).convertHtml(bytes);
@@ -39,10 +40,10 @@ export async function convertToMarkdown(bytes, filename) {
 		case 'md':
 		case 'markdown': return (await loaders.text()).convertPlainText(bytes);
 		case 'doc':
-			throw new Error('format .doc (ancien Word) non pris en charge : enregistrez le fichier en .docx');
+			throw new ConversionError('doc');
 		case 'rtf':
-			throw new Error('format .rtf non pris en charge : enregistrez le fichier en .docx');
+			throw new ConversionError('rtf');
 		default:
-			throw new Error(`format non pris en charge${ext ? ` : .${ext}` : ''}`);
+			throw ext ? new ConversionError('unsupported', { ext }) : new ConversionError('unsupportedNoExt');
 	}
 }
