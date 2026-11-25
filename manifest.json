@@ -1,0 +1,21 @@
+{
+  "manifest_version": 1,
+  "id": "markitdown-import.joplin",
+  "name": "markitdown-import",
+  "app_min_version": "3.0",
+  "version": "0.2.3",
+  "title": "MarkItDown Import",
+  "description": "Importe des fichiers Word, PDF, PowerPoint, Excel, HTML, EPUB… en notes Markdown, converties localement, avec le tag MarkItDown.",
+  "author": "",
+  "homepage_url": "",
+  "repository_url": "",
+  "keywords": [
+    "import",
+    "markitdown",
+    "word",
+    "pdf",
+    "docx",
+    "pptx",
+    "xlsx"
+  ]
+}
