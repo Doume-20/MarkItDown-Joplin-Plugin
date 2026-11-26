@@ -149,3 +149,13 @@ test('docx tables are kept as Markdown tables (not flattened)', async () => {
 	assert.match(md, /^\| f\(x\)\s+\| \+\s+\| -\s+\|$/m);
 	assert.doesNotMatch(md, /\\\+inf/);
 });
+
+test('tidyMarkdown: escapes, double bullets, empty bullets, nbsp, inner spaces', async () => {
+	const { tidyMarkdown } = await import('../src/converters/office.js');
+	assert.equal(tidyMarkdown('Sn+1 \\= Sn \\+ 1/(n + 1) et \\[-4 ; +inf\\['), 'Sn+1 = Sn + 1/(n + 1) et \\[-4 ; +inf\\[');
+	assert.equal(tidyMarkdown('- - Si a < 0'), '- Si a < 0');
+	assert.equal(tidyMarkdown('a\n-  \nb'), 'a\nb');
+	assert.equal(tidyMarkdown('Exemple :   texte   long'), 'Exemple : texte long');
+	assert.equal(tidyMarkdown('\\+ début de ligne garde son échappement'), '\\+ début de ligne garde son échappement');
+	assert.equal(tidyMarkdown('2\\*\\*n reste échappé'), '2\\*\\*n reste échappé');
+});
