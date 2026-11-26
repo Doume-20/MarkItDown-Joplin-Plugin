@@ -121,3 +121,24 @@ test('pptx headings follow the UI language (English by default)', async () => {
 	const md = await convertToMarkdown(await zip.generateAsync({ type: 'uint8array' }), 'deck.pptx');
 	assert.equal(md, '## Slide 1\n\nHi');
 });
+
+test('odt -> markdown: headings, spans, nested lists, tables', async () => {
+	const zip = new JSZip();
+	zip.file('mimetype', 'application/vnd.oasis.opendocument.text');
+	zip.file('content.xml', `<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:o" xmlns:text="urn:t" xmlns:table="urn:tb" xmlns:xlink="urn:x"><office:body><office:text>
+<text:h text:outline-level="1">Titre ODT</text:h>
+<text:p>Un <text:span>mot</text:span> gras &amp; <text:s text:c="2"/>fin <text:a xlink:href="https://example.com">lien</text:a></text:p>
+<text:list><text:list-item><text:p>Item A</text:p><text:list><text:list-item><text:p>Sous B</text:p></text:list-item></text:list></text:list-item><text:list-item><text:p>Item C</text:p></text:list-item></text:list>
+<table:table><table:table-row><table:table-cell><text:p>x</text:p></table:table-cell><table:table-cell><text:p>y|z</text:p></table:table-cell></table:table-row><table:table-row><table:table-cell><text:p>1</text:p></table:table-cell><table:table-cell><text:p>2</text:p></table:table-cell></table:table-row></table:table>
+</office:text></office:body></office:document-content>`);
+	const bytes = await zip.generateAsync({ type: 'uint8array' });
+	const md = await convertToMarkdown(bytes, 'doc.odt');
+	assert.equal(md, '# Titre ODT\n\nUn mot gras &   fin [lien](https://example.com)\n\n- Item A\n  - Sous B\n- Item C\n\n| x | y\\|z |\n| --- | --- |\n| 1 | 2 |');
+});
+
+test('odt without content.xml gives a clear error', async () => {
+	const zip = new JSZip();
+	zip.file('other.txt', 'x');
+	await assert.rejects(convertToMarkdown(await zip.generateAsync({ type: 'uint8array' }), 'bad.odt'), /Invalid .odt file/);
+});

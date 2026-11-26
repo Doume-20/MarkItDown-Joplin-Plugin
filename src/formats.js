@@ -3,7 +3,7 @@
 /** Extensions prises en charge (mêmes formats que MarkItDown, hors OCR/audio/images). */
 export const SUPPORTED_EXTENSIONS = [
 	'docx', 'pptx', 'xlsx', 'csv', 'pdf', 'html', 'htm',
-	'epub', 'json', 'xml', 'ipynb', 'txt', 'md', 'markdown',
+	'odt', 'epub', 'json', 'xml', 'ipynb', 'txt', 'md', 'markdown',
 ];
 
 export function extensionOf(filename) {

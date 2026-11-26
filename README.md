@@ -48,6 +48,7 @@ carnet « MarkItDown » s'il n'y en a pas, et reçoit le tag **MarkItDown**.
 | `.csv` | tableau Markdown |
 | `.pdf` | texte (sans OCR : un PDF scanné donne peu de texte) |
 | `.html`, `.htm` | conversion HTML → Markdown |
+| `.odt` | titres, paragraphes, listes, tableaux, liens (OpenDocument, LibreOffice) |
 | `.epub` | chapitres dans l'ordre de lecture |
 | `.json`, `.xml` | bloc de code |
 | `.ipynb` | cellules markdown et de code |

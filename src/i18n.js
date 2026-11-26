@@ -22,6 +22,7 @@ const messages = {
 		xls: 'Old Excel format (.xls) is not supported: save the file as .xlsx',
 		invalidXlsx: 'Invalid .xlsx file',
 		invalidEpub: 'Invalid EPUB: OPF file not found',
+		invalidOdt: 'Invalid .odt file',
 	},
 	fr: {
 		command: 'Importer avec MarkItDown…',
@@ -43,6 +44,7 @@ const messages = {
 		xls: 'format .xls (ancien Excel) non pris en charge : enregistrez le fichier en .xlsx',
 		invalidXlsx: 'fichier .xlsx invalide',
 		invalidEpub: 'EPUB invalide : fichier OPF introuvable',
+		invalidOdt: 'fichier .odt invalide',
 	},
 	de: {
 		command: 'Mit MarkItDown importieren…',
@@ -64,6 +66,7 @@ const messages = {
 		xls: 'Altes Excel-Format (.xls) wird nicht unterstützt: Speichern Sie die Datei als .xlsx',
 		invalidXlsx: 'Ungültige .xlsx-Datei',
 		invalidEpub: 'Ungültiges EPUB: OPF-Datei nicht gefunden',
+		invalidOdt: 'Ungültige .odt-Datei',
 	},
 	es: {
 		command: 'Importar con MarkItDown…',
@@ -85,6 +88,7 @@ const messages = {
 		xls: 'El formato Excel antiguo (.xls) no es compatible: guarde el archivo como .xlsx',
 		invalidXlsx: 'Archivo .xlsx no válido',
 		invalidEpub: 'EPUB no válido: no se encontró el archivo OPF',
+		invalidOdt: 'Archivo .odt no válido',
 	},
 	it: {
 		command: 'Importa con MarkItDown…',
@@ -106,6 +110,7 @@ const messages = {
 		xls: 'Il formato Excel vecchio (.xls) non è supportato: salva il file come .xlsx',
 		invalidXlsx: 'File .xlsx non valido',
 		invalidEpub: 'EPUB non valido: file OPF non trovato',
+		invalidOdt: 'File .odt non valido',
 	},
 	pt: {
 		command: 'Importar com MarkItDown…',
@@ -127,6 +132,7 @@ const messages = {
 		xls: 'O formato Excel antigo (.xls) não é suportado: salve o arquivo como .xlsx',
 		invalidXlsx: 'Arquivo .xlsx inválido',
 		invalidEpub: 'EPUB inválido: arquivo OPF não encontrado',
+		invalidOdt: 'Arquivo .odt inválido',
 	},
 };
 

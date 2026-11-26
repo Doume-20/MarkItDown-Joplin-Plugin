@@ -11,6 +11,7 @@ const loaders = {
 	sheets: () => import('./converters/sheets.js'),
 	pdf: () => import('./converters/pdf.js'),
 	web: () => import('./converters/web.js'),
+	odt: () => import('./converters/odt.js'),
 	text: () => import('./converters/text.js'),
 };
 
@@ -33,6 +34,7 @@ export async function convertToMarkdown(bytes, filename) {
 		case 'html':
 		case 'htm': return (await loaders.web()).convertHtml(bytes);
 		case 'epub': return (await loaders.web()).convertEpub(bytes);
+		case 'odt': return (await loaders.odt()).convertOdt(bytes);
 		case 'json': return (await loaders.text()).convertCode(bytes, 'json');
 		case 'xml': return (await loaders.text()).convertCode(bytes, 'xml');
 		case 'ipynb': return (await loaders.text()).convertNotebook(bytes);
