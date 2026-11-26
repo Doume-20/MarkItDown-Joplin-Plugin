@@ -1,15 +1,26 @@
 import mammoth from 'mammoth';
+import { NodeHtmlMarkdown } from 'node-html-markdown';
 import JSZip from 'jszip';
 import { toArrayBuffer, decodeXml } from './common.js';
 import { t } from '../i18n.js';
 
-/** Word (.docx) — via mammoth. */
+const htmlToMarkdown = new NodeHtmlMarkdown({ useInlineLinks: true, bulletMarker: '-' });
+
+/**
+ * Word (.docx) — mammoth → HTML → Markdown.
+ * Le mode Markdown de mammoth aplatit les tableaux ; le HTML les conserve.
+ */
 export async function convertDocx(bytes) {
 	// mammoth lit `buffer` dans Node et `arrayBuffer` dans le build navigateur.
 	const input = { arrayBuffer: toArrayBuffer(bytes) };
 	if (typeof Buffer !== 'undefined') input.buffer = Buffer.from(bytes);
-	const result = await mammoth.convertToMarkdown(input);
-	return result.value;
+	const result = await mammoth.convertToHtml(input);
+	const markdown = htmlToMarkdown.translate(result.value);
+	// Dans les lignes de tableau, l'échappement de + et - n'a pas lieu d'être.
+	return markdown
+		.split('\n')
+		.map(line => (line.startsWith('|') ? line.replace(/\\([+\-])/g, '$1') : line))
+		.join('\n');
 }
 
 /** PowerPoint (.pptx) — texte des diapositives, dans l'ordre. */

@@ -142,3 +142,10 @@ test('odt without content.xml gives a clear error', async () => {
 	zip.file('other.txt', 'x');
 	await assert.rejects(convertToMarkdown(await zip.generateAsync({ type: 'uint8array' }), 'bad.odt'), /Invalid .odt file/);
 });
+
+test('docx tables are kept as Markdown tables (not flattened)', async () => {
+	const md = await convertToMarkdown(await load('table.docx'), 'table.docx');
+	assert.match(md, /^\| x\s+\| \+inf\s+\| -inf\s+\|$/m);
+	assert.match(md, /^\| f\(x\)\s+\| \+\s+\| -\s+\|$/m);
+	assert.doesNotMatch(md, /\\\+inf/);
+});
