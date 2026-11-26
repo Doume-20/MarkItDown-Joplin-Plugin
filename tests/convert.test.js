@@ -159,3 +159,10 @@ test('tidyMarkdown: escapes, double bullets, empty bullets, nbsp, inner spaces',
 	assert.equal(tidyMarkdown('\\+ début de ligne garde son échappement'), '\\+ début de ligne garde son échappement');
 	assert.equal(tidyMarkdown('2\\*\\*n reste échappé'), '2\\*\\*n reste échappé');
 });
+
+test('centered Word paragraphs and table columns are kept', async () => {
+	const md = await convertToMarkdown(await load('center.docx'), 'center.docx');
+	assert.match(md, /<div align="center">\n\nTitre centré\n\n<\/div>/);
+	assert.match(md, /<div align="center">\n\nCentré avec \\\*italique\\\*\n\n<\/div>/);
+	assert.match(md, /^\| A \| B \|$\n^\| --- \| :---: \|$/m);
+});

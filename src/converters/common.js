@@ -26,16 +26,21 @@ function cell(value) {
 	return String(value).replace(/\r?\n/g, ' ').replace(/\|/g, '\\|').trim();
 }
 
-/** Tableau Markdown à partir d'un tableau de lignes (la première ligne sert d'en-tête). */
-export function markdownTable(rows) {
+/**
+ * Tableau Markdown à partir d'un tableau de lignes (la première ligne sert d'en-tête).
+ * @param {string[][]} rows
+ * @param {boolean[]} [centered] colonnes à centrer (alignement `:---:`)
+ */
+export function markdownTable(rows, centered = []) {
 	const data = rows.filter(r => Array.isArray(r) && r.some(c => cell(c) !== ''));
 	if (!data.length) return '';
 	const width = Math.max(...data.map(r => r.length));
 	const norm = r => Array.from({ length: width }, (_, i) => cell(r[i]));
 	const [header, ...body] = data.map(norm);
+	const separator = Array.from({ length: width }, (_, i) => (centered[i] ? ':---:' : '---'));
 	const lines = [
 		`| ${header.join(' | ')} |`,
-		`| ${header.map(() => '---').join(' | ')} |`,
+		`| ${separator.join(' | ')} |`,
 		...body.map(r => `| ${r.join(' | ')} |`),
 	];
 	return lines.join('\n');

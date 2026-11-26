@@ -5,6 +5,21 @@ import { toArrayBuffer, decodeXml, markdownTable } from './common.js';
 import { t } from '../i18n.js';
 
 // Échappe seulement ce qui peut déclencher une mise en forme Markdown.
+// Paragraphes centrés dans Word : mammoth les marque avec cette classe.
+const CENTER_STYLE = 'md-center';
+const CENTER_CLASS_RE = /class="md-center"/;
+
+/** Marque les paragraphes centrés (alignement direct) avec un style reconnu par le styleMap. */
+function markCenteredParagraphs(document) {
+	const walk = node => {
+		if (!node || typeof node !== 'object') return;
+		if (node.type === 'paragraph' && node.alignment === 'center') node.styleName = CENTER_STYLE;
+		for (const child of node.children || []) walk(child);
+	};
+	walk(document);
+	return document;
+}
+
 const htmlToMarkdown = new NodeHtmlMarkdown({
 	useInlineLinks: true,
 	bulletMarker: '-',
@@ -45,34 +60,60 @@ export function tidyMarkdown(markdown) {
  */
 function htmlTableToMarkdown(tableHtml) {
 	const rows = [];
+	const flags = []; // parallèle à rows : true si la cellule est centrée dans Word
 	for (const [, rowHtml] of tableHtml.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/g)) {
 		const cells = [];
+		const cellFlags = [];
 		for (const [, cellHtml] of rowHtml.matchAll(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/g)) {
+			const centered = CENTER_CLASS_RE.test(cellHtml);
 			const text = decodeXml(cellHtml.replace(/<br\s*\/?>|<\/p>/g, ' ').replace(/<[^>]+>/g, ''))
 				.replace(/\u00a0/g, ' ')
 				.trim();
 			const parts = text.split(/\s{3,}/).filter(Boolean);
-			cells.push(...(parts.length ? parts : ['']));
+			for (const part of (parts.length ? parts : [''])) {
+				cells.push(part);
+				cellFlags.push(centered);
+			}
 		}
 		rows.push(cells);
+		flags.push(cellFlags);
 	}
-	return markdownTable(rows);
+
+	// Une colonne est centrée si toutes ses cellules non vides le sont.
+	const width = Math.max(0, ...rows.map(r => r.length));
+	const centered = Array.from({ length: width }, (_, col) => {
+		const present = flags.map((f, r) => (rows[r][col] ? f[col] : null)).filter(v => v !== null);
+		return present.length > 0 && present.every(Boolean);
+	});
+	return markdownTable(rows, centered);
 }
 
 export async function convertDocx(bytes) {
 	// mammoth lit `buffer` dans Node et `arrayBuffer` dans le build navigateur.
 	const input = { arrayBuffer: toArrayBuffer(bytes) };
 	if (typeof Buffer !== 'undefined') input.buffer = Buffer.from(bytes);
-	const result = await mammoth.convertToHtml(input);
+	const result = await mammoth.convertToHtml(input, {
+		transformDocument: markCenteredParagraphs,
+		styleMap: [`p[style-name='${CENTER_STYLE}'] => p.${CENTER_STYLE}:fresh`],
+	});
 
-	// Les tableaux sont convertis à part et réinsérés via un marqueur,
-	// que node-html-markdown ne peut pas abîmer.
+	// Tableaux et paragraphes centrés sont convertis à part et réinsérés via
+	// des marqueurs, que node-html-markdown ne peut pas abîmer.
 	const tables = [];
-	const html = result.value.replace(/<table[\s\S]*?<\/table>/g, tableHtml => {
+	const centered = [];
+	let html = result.value.replace(/<table[\s\S]*?<\/table>/g, tableHtml => {
 		tables.push(htmlTableToMarkdown(tableHtml));
 		return `<p>ZZTABLEZZ${tables.length - 1}ZZ</p>`;
 	});
-	const markdown = htmlToMarkdown.translate(html).replace(/^ZZTABLEZZ(\d+)ZZ$/gm, (_, i) => tables[Number(i)]);
+	html = html.replace(new RegExp(`<p class="${CENTER_STYLE}">([\\s\\S]*?)</p>`, 'g'), (_, inner) => {
+		centered.push(htmlToMarkdown.translate(`<p>${inner}</p>`).trim());
+		return `<p>ZZCENTERZZ${centered.length - 1}ZZ</p>`;
+	});
+
+	let markdown = htmlToMarkdown.translate(html)
+		.replace(/^ZZTABLEZZ(\d+)ZZ$/gm, (_, i) => tables[Number(i)])
+		// Bloc centré : le Markdown à l'intérieur reste interprété (lignes vides autour).
+		.replace(/^ZZCENTERZZ(\d+)ZZ$/gm, (_, i) => `<div align="center">\n\n${centered[Number(i)]}\n\n</div>`);
 	return tidyMarkdown(markdown);
 }
 
